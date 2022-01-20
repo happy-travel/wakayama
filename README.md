@@ -1,2 +1,2 @@
-# Wakayama
+# wakayama
 Geo Service
