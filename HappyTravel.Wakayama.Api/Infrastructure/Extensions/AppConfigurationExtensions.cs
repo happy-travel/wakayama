@@ -8,8 +8,8 @@ public static class AppConfigurationExtensions
     public static void ConfigureAppConfiguration(this WebApplicationBuilder builder)
     {
         var environment = builder.Environment;
-        var consulAddress = System.Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR");
-        var consulToken = System.Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN");
+        var consulAddress = Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR");
+        var consulToken = Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN");
         
         ArgumentNullException.ThrowIfNull(consulAddress);
         ArgumentNullException.ThrowIfNull(consulToken);

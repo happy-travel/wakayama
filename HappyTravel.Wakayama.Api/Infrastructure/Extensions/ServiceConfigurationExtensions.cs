@@ -4,6 +4,7 @@ using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
 using HappyTravel.Wakayama.Api.Infrastructure.Helpers;
 using HappyTravel.Wakayama.Data;
+using HappyTravel.Wakayama.Data.CompiledModels;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -132,7 +133,7 @@ public static class ServiceConfigurationExtensions
             options.EnableSensitiveDataLogging(false);
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             // run "dotnet ef dbcontext optimize" for regenerating compiled models
-            //options.UseModel(WakayamaContextModel.Instance);
+            options.UseModel(WakayamaContextModel.Instance);
         }, 16);
     }
         

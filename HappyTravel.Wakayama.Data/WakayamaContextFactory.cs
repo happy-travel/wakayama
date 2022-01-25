@@ -1,11 +1,12 @@
 using System.Reflection;
 using HappyTravel.VaultClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
 namespace HappyTravel.Wakayama.Data;
 
-public class WakayamaContextFactory
+public class WakayamaContextFactory : IDesignTimeDbContextFactory<WakayamaContext>
 {
     public WakayamaContext CreateDbContext(string[] args)
     {
