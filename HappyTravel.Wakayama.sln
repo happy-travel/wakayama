@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Wakayama.Api", "HappyTravel.Wakayama.Api\HappyTravel.Wakayama.Api.csproj", "{A6906F38-3A4A-4209-BF01-F1580A7B66FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Wakayama.Data", "HappyTravel.Wakayama.Data\HappyTravel.Wakayama.Data.csproj", "{49ADE2BF-A452-434C-8216-C31C28CBFFEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6906F38-3A4A-4209-BF01-F1580A7B66FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6906F38-3A4A-4209-BF01-F1580A7B66FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6906F38-3A4A-4209-BF01-F1580A7B66FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6906F38-3A4A-4209-BF01-F1580A7B66FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49ADE2BF-A452-434C-8216-C31C28CBFFEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49ADE2BF-A452-434C-8216-C31C28CBFFEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49ADE2BF-A452-434C-8216-C31C28CBFFEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49ADE2BF-A452-434C-8216-C31C28CBFFEE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
