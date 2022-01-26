@@ -80,7 +80,7 @@ public static class ServiceConfigurationExtensions
     public static IServiceCollection ConfigureSwagger(this IServiceCollection services) 
         => services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "HappyTravel.Gifu.Api", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "HappyTravel.Wakayama.Api", Version = "v1" });
                 
             var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
