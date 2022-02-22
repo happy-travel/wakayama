@@ -1,10 +1,11 @@
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.Wakayama.Api.Infrastructure.Extensions;
+using HappyTravel.Wakayama.Common.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.ConfigureAppConfiguration();
+builder.ConfigureApp();
 builder.ConfigureLogging();
 builder.ConfigureSentry();
 builder.ConfigureServiceProvider();

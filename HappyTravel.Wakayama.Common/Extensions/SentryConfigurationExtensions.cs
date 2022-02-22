@@ -1,6 +1,8 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 
-namespace HappyTravel.Wakayama.Api.Infrastructure.Extensions;
+namespace HappyTravel.Wakayama.Common.Extensions;
 
 public static class SentryConfigurationExtensions
 {
@@ -8,8 +10,8 @@ public static class SentryConfigurationExtensions
     {
         builder.WebHost.UseSentry(options =>
         {
-            options.Dsn = System.Environment.GetEnvironmentVariable("HTDC_WAKAYAMA_SENTRY_ENDPOINT");
-            options.Environment = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            options.Dsn = Environment.GetEnvironmentVariable("HTDC_WAKAYAMA_SENTRY_ENDPOINT");
+            options.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             options.IncludeActivityData = true;
             options.BeforeSend = sentryEvent =>
             {

@@ -1,0 +1,11 @@
+[
+    {"id": 82101, "name": "ImportStarted", "level": "Information", "template": "The import execution is started"},
+    {"id": 82102, "name": "PlacesUploaded", "level": "Information", "template": "{uploadedPlacesNumber} out of {totalPlacesNumber} items have been uploaded to the index",  "argumentTypes": ["long", "long"]},
+    {"id": 82103, "name": "ImportCompleted", "level": "Information", "template": "The import execution is completed"},
+    {"id": 82104, "name": "ElasticIndexCreated", "level": "Information", "template": "Index '{indexName}' has been created", "argumentTypes": ["string"]},
+    {"id": 82105, "name": "ElasticIndexRemoved", "level": "Information", "template": "Index '{indexName}' has been removed", "argumentTypes": ["string"]},
+    
+    {"id": 82150, "name": "ImportErrorOccurred", "level": "Error", "template": "An import error has been occured", "hasException":  true},
+    {"id": 82151, "name": "PlacesDownloadErrorOccurred", "level": "Error", "template": "A download error has been occured", "hasException":  true},
+    {"id": 82152, "name": "PlacesUploadErrorOccurred", "level": "Error", "template": "The upload error: {error}", "argumentTypes":  ["string"]}
+]

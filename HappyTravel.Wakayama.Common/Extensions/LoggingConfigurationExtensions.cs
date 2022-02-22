@@ -1,8 +1,10 @@
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.StdOutLogger.Infrastructure;
-using HappyTravel.Wakayama.Api.Infrastructure.Helpers;
+using HappyTravel.Wakayama.Common.Helpers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Wakayama.Api.Infrastructure.Extensions;
+namespace HappyTravel.Wakayama.Common.Extensions;
 
 public static class LoggingConfigurationExtensions
 {
