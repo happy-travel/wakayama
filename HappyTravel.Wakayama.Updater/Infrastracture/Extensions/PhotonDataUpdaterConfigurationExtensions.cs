@@ -6,53 +6,46 @@ using Nest;
 
 namespace HappyTravel.Wakayama.Updater.Infrastracture.Extensions;
 
-public static class ElasticImporterConfigurations
+public static class PhotonDataUpdaterConfigurationExtensions
 {
-    public static IServiceCollection ConfigurePhotonImporter(this WebApplicationBuilder builder, IVaultClient vaultClient)
+    public static IServiceCollection ConfigurePhotonDataUpdater(this WebApplicationBuilder builder, IVaultClient vaultClient)
     {
         var serviceCollection = builder.Services;
         var configuration = builder.Configuration;
         var environment = builder.Environment;
         ConnectionSettings connectionSettings;
         string indexName;
-        int top;
+
         if (environment.IsLocal())
         {
-            connectionSettings = GetPhotonLocalConnectionsSettings(configuration);
-            indexName = configuration["Importers:Photon:Settings:Index"];
-            top = int.Parse(configuration["Importers:Photon:Settings:Top"]);
+            connectionSettings = new ConnectionSettings(new Uri(configuration["Updaters:Photon:Settings:Endpoint"]))
+                .DefaultIndex(configuration["Updaters:Photon:Settings:Index"])
+                .BasicAuthentication(configuration["Updaters:Photon:Settings:Username"], 
+                    configuration["Updaters:Photon:Settings:Password"])
+                .RequestTimeout(TimeSpan.FromSeconds(int.Parse(configuration["Updaters:Photon:Settings:RequestTimeoutInSeconds"])));
+            indexName = configuration["Updaters:Photon:Settings:Index"];
         }
         else
         {
-            var photonSettingsDictionary = vaultClient.Get(configuration["Importers:Photon:Settings"]).GetAwaiter().GetResult();
+            var photonSettingsDictionary = vaultClient.Get(configuration["Updaters:Photon:Settings"]).GetAwaiter().GetResult();
             indexName = photonSettingsDictionary["index"];
-            top = int.Parse(photonSettingsDictionary["top"]);
-            var requestTimeoutInSeconds = int.Parse(configuration["requestTimeoutInSeconds"]);
+            var requestTimeoutInSeconds = int.Parse(photonSettingsDictionary["requestTimeoutInSeconds"]);
             connectionSettings = new ConnectionSettings(new Uri(photonSettingsDictionary["endpoint"]))
                 .BasicAuthentication(photonSettingsDictionary["username"], photonSettingsDictionary["password"])
                 .ServerCertificateValidationCallback((o, certificate, chain, errors) => true)
                 .ClientCertificate(new X509Certificate2(Convert.FromBase64String(photonSettingsDictionary["certificate"])))
                 .RequestTimeout(TimeSpan.FromSeconds(requestTimeoutInSeconds));
-            
         }
         SetDefaultIndex(connectionSettings, indexName);
 
-        builder.Services.Configure<PhotonImporterOptions>(o =>
+        builder.Services.Configure<PhotonUpdaterOptions>(o =>
         {
             o.ConnectionSettings = connectionSettings;
             o.Index = indexName;
-            o.Top = top;
         });
         
         return serviceCollection;
     }
-
-    private static ConnectionSettings GetPhotonLocalConnectionsSettings(IConfiguration configuration)
-        => new ConnectionSettings(new Uri(configuration["Importers:Photon:Settings:Endpoint"]))
-            .DefaultIndex(configuration["Importers:Photon:Settings:Index"])
-            .BasicAuthentication(configuration["Importers:Photon:Settings:Username"], 
-                configuration["Importers:Photon:Settings:Password"])
-            .RequestTimeout(TimeSpan.FromSeconds(int.Parse(configuration["Importers:Photon:Settings:RequestTimeoutInSeconds"])));
 
 
     private static void SetDefaultIndex(ConnectionSettings connectionSettings, string index) 

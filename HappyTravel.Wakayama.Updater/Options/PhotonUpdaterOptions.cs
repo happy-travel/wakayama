@@ -2,9 +2,8 @@ using Nest;
 
 namespace HappyTravel.Wakayama.Updater.Options;
 
-public class PhotonImporterOptions
+public class PhotonUpdaterOptions
 {
     public ConnectionSettings ConnectionSettings { get; set; }
     public string Index { get; set; }
-    public int Top { get; set; }
 }

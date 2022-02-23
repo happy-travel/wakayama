@@ -1,5 +1,4 @@
 using HappyTravel.Wakayama.Common.Helpers;
-using HappyTravel.Wakayama.Common.Logging;
 using HappyTravel.Wakayama.Common.Models;
 using HappyTravel.Wakayama.Common.Options;
 using Microsoft.Extensions.Logging;
@@ -15,29 +14,14 @@ public sealed class GeoServiceElasticClient
         _logger = logger;
         Client = new ElasticClient(elasticOptions.Value.ClientSettings);
         _indexNames = elasticOptions.Value.Indexes;
-
-        if (Client.Indices.Exists(_indexNames.Places).Exists)
-        {
-            var removeIndexResponse = RemoveIndex(_indexNames.Places);
-            if (removeIndexResponse.OriginalException is not null)
-                throw removeIndexResponse.OriginalException;
-
-            _logger.LogElasticIndexRemoved(_indexNames.Places);
-        }
-
-        var response = CreatePlacesIndex();
-        if (response.OriginalException is not null)
-            throw response.OriginalException;
-        
-        _logger.LogElasticIndexCreated(_indexNames.Places);
     }
 
     
-    private DeleteIndexResponse RemoveIndex(string index)
-        => Client.Indices.Delete(index);
+    public Task<DeleteIndexResponse> RemoveIndex(string index, CancellationToken cancellationToken)
+        => Client.Indices.DeleteAsync(index, ct: cancellationToken);
     
     
-    private CreateIndexResponse CreatePlacesIndex()
+    public Task<CreateIndexResponse> CreatePlacesIndex(CancellationToken cancellationToken)
     {
         const string removeHouseNumberSuffixCharFilter = "remove_ws_hnr_suffix";
         const string removeHouseNumberSuffixPattern = @"(\d+)\s(?=\p{L}\b)";
@@ -61,7 +45,7 @@ public sealed class GeoServiceElasticClient
         var countrySynonyms = ElasticSynonymsHelper.GetCountrySynonyms();
         var citySynonyms = ElasticSynonymsHelper.GetLocalitySynonyms();
         
-        return Client.Indices.Create(_indexNames.Places, ind
+        return Client.Indices.CreateAsync(_indexNames.Places, ind
             => ind.Settings(isd => isd.Analysis(ad =>
                     ad.CharFilters(cfd => cfd
                             .PatternReplace(removeHouseNumberSuffixCharFilter,
@@ -125,7 +109,7 @@ public sealed class GeoServiceElasticClient
                         .Keyword(pl => pl.Name(pl => pl.OsmKey))
                         .Keyword(pl => pl.Name(pl => pl.OsmType))
                         .Keyword(pl => pl.Name(pl => pl.OsmValue))
-                    )));
+                    )), cancellationToken);
                     
         
         PropertiesDescriptor<MultiLanguage> DefineMultiLangEngramSearchProperties(PropertiesDescriptor<MultiLanguage> pr, string indexAnalyzer, string searchAnalyzer) => 

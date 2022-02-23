@@ -5,7 +5,7 @@ using HappyTravel.Wakayama.Common.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.ConfigureApp();
+builder.ConfigureApp("wakayama");
 builder.ConfigureLogging();
 builder.ConfigureSentry();
 builder.ConfigureServiceProvider();
@@ -27,10 +27,5 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHealthChecks("/health").AllowAnonymous();
-    endpoints.MapControllers();
-});
 
 app.Run();

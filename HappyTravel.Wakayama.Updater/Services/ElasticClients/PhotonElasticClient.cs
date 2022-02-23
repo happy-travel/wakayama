@@ -6,7 +6,7 @@ namespace HappyTravel.Wakayama.Updater.Services.ElasticClients;
 
 public class PhotonElasticClient
 {
-    public PhotonElasticClient(IOptions<PhotonImporterOptions> options)
+    public PhotonElasticClient(IOptions<PhotonUpdaterOptions> options)
         => Client = new ElasticClient(options.Value.ConnectionSettings);
     
 

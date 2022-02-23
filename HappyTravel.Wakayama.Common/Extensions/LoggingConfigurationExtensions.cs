@@ -10,7 +10,8 @@ public static class LoggingConfigurationExtensions
 {
     public static void ConfigureLogging(this WebApplicationBuilder builder)
     {
-        builder.Logging.ClearProviders()
+        builder.Logging
+            .ClearProviders()
             .AddConfiguration(builder.Configuration.GetSection("Logging"));
         
         if (builder.Environment.IsLocal())

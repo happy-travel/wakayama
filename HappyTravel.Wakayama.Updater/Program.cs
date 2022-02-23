@@ -9,20 +9,21 @@ using HappyTravel.Wakayama.Updater.Services.ElasticClients;
 var builder = WebApplication.CreateBuilder(args);
 
 using var vaultClient = VaultClientHelper.GetVaultClient(builder.Configuration);
-builder.ConfigureApp();
+builder.ConfigureApp("wakayama-updater");
 builder.ConfigureLogging();
 builder.ConfigureServiceProvider();
 
 builder.ConfigureElasticClient(vaultClient);
-builder.ConfigurePhotonImporter(vaultClient);
+builder.ConfigurePhotonDataUpdater(vaultClient);
+builder.ConfigureUpdaterLaunchSettings();
 
 builder.Services.AddHealthChecks()
     .AddCheck<ElasticHealthCheck>("Elastic");
 
 builder.Services.AddSingleton<GeoServiceElasticClient>();
 builder.Services.AddSingleton<PhotonElasticClient>();
-builder.Services.AddSingleton<IPlacesImporter, PhotonDataImporter>();
-builder.Services.AddHostedService<ImportPlacesInvoker>();
+builder.Services.AddSingleton<IPlacesUpdater, PhotonUpdater>();
+builder.Services.AddHostedService<UpdateExecutor>();
 
 var app = builder.Build();
 app.Run();

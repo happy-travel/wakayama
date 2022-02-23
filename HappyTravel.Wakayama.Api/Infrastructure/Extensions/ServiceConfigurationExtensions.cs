@@ -3,15 +3,8 @@ using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
 using HappyTravel.Wakayama.Common.Helpers;
-using HappyTravel.Wakayama.Data;
-using HappyTravel.Wakayama.Data.CompiledModels;
 using IdentityServer4.AccessTokenValidation;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 namespace HappyTravel.Wakayama.Api.Infrastructure.Extensions;
@@ -41,6 +34,7 @@ public static class ServiceConfigurationExtensions
             .ConfigureSwagger()
             .ConfigureElastic(vaultClient, configuration)
             .ConfigureAuthentication(vaultClient, builder.Configuration)
+            .AddAuthorization()
             .AddTracing(builder.Configuration, options =>
             {
                 options.ServiceName = $"{builder.Environment.ApplicationName}-{builder.Environment.EnvironmentName}";
@@ -50,7 +44,8 @@ public static class ServiceConfigurationExtensions
                 options.JaegerPort = builder.Environment.IsLocal()
                     ? builder.Configuration.GetValue<int>("Jaeger:AgentPort")
                     : builder.Configuration.GetValue<int>(builder.Configuration.GetValue<string>("Jaeger:AgentPort"));
-            });
+            })
+            .AddHealthChecks();
     }
     
     public static IServiceCollection ConfigureApiVersioning(this IServiceCollection services) 
