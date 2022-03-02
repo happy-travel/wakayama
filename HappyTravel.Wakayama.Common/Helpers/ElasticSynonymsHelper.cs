@@ -38,9 +38,7 @@ public static class ElasticSynonymsHelper
         
         private static string RemoveArticles(string origin)
         {
-            var articles = new []{"the", "a", "an"};
-            
-            foreach (var article in articles)
+            foreach (var article in Articles)
             {
                 if (origin.Length <= article.Length)
                     return origin;
@@ -60,4 +58,6 @@ public static class ElasticSynonymsHelper
 
         
         private static LocationNameNormalizer.FileLocationNameRetriever LocationNameRetriever => new();
+        
+        private static readonly List<string> Articles = new() {"the", "a", "an"};
     }

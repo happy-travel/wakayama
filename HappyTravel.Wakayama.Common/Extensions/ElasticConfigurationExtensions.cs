@@ -18,8 +18,7 @@ public static class ElasticConfigurationExtensions
         if (builder.Environment.IsLocal())
         {
             clientSettings = new ConnectionSettings(new Uri(configuration["Elasticsearch:ClientSettings:Endpoint"]))
-                    .BasicAuthentication(configuration["Elasticsearch:ClientSettings:Username"], 
-                        configuration["Elasticsearch:ClientSettings:Password"])
+                    .BasicAuthentication(configuration["Elasticsearch:ClientSettings:Username"], configuration["Elasticsearch:ClientSettings:Password"])
                     .RequestTimeout(TimeSpan.FromSeconds(int.Parse(configuration["Elasticsearch:ClientSettings:RequestTimeoutInSeconds"])));
         }
         else
