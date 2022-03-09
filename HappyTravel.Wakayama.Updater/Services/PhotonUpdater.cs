@@ -109,6 +109,7 @@ public class PhotonUpdater : IPlacesUpdater
         var batchSize = 10000;
         IReadOnlyCollection<Place> downloadedPlaces;
 
+        int downloadedPlacesCount;
         do
         {
             var photonIndexSearchResponse = await _photonElasticClient.Client.SearchAsync<Place>(s => s
@@ -121,12 +122,17 @@ public class PhotonUpdater : IPlacesUpdater
             
             downloadedPlaces = photonIndexSearchResponse.Documents;
             
+            if (!downloadedPlaces.Any())
+                break;
+            
+            downloadedPlacesCount = downloadedPlaces.Count;
+            
             var lastPlace = photonIndexSearchResponse.Documents.LastOrDefault();
             if (lastPlace is not null)
                 searchAfterId = lastPlace.OsmId;
             
             yield return downloadedPlaces.ToList();
-        } while (downloadedPlaces.Count == batchSize);
+        } while (downloadedPlacesCount == batchSize);
     }
     
     
