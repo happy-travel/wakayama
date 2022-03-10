@@ -1,10 +1,11 @@
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.Wakayama.Api.Infrastructure.Extensions;
+using HappyTravel.Wakayama.Common.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.ConfigureAppConfiguration();
+builder.ConfigureApp("wakayama");
 builder.ConfigureLogging();
 builder.ConfigureSentry();
 builder.ConfigureServiceProvider();
@@ -26,10 +27,5 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHealthChecks("/health").AllowAnonymous();
-    endpoints.MapControllers();
-});
 
 app.Run();

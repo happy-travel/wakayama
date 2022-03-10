@@ -1,0 +1,11 @@
+[
+    {"id": 82101, "name": "UpdateStarted", "level": "Information", "template": "Update is started. Launch mode is '{launchMode}'. Start osm_id is '{osmId}'", "argumentTypes": ["string", "string"]},
+    {"id": 82102, "name": "PlacesUploaded", "level": "Information", "template": "{numberOfUploadedPlaces} out of {totalNumberOfPlaces} items have been uploaded to '{index}' index",  "argumentTypes": ["long", "long", "string"]},
+    {"id": 82103, "name": "UpdateCompleted", "level": "Information", "template": "Update is completed"},
+    {"id": 82104, "name": "ElasticIndexCreated", "level": "Information", "template": "Index '{indexName}' has been created", "argumentTypes": ["string"]},
+    {"id": 82105, "name": "ElasticIndexRemoved", "level": "Information", "template": "Index '{indexName}' has been removed", "argumentTypes": ["string"]},
+    
+    {"id": 82150, "name": "UpdateErrorOccurred", "level": "Error", "template": "An update error has been occured", "hasException":  true},
+    {"id": 82151, "name": "PlacesDownloadErrorOccurred", "level": "Error", "template": "A download error has been occured", "hasException":  true},
+    {"id": 82152, "name": "PlacesUploadErrorOccurred", "level": "Error", "template": "Update error: {error}", "argumentTypes":  ["string"]}
+]

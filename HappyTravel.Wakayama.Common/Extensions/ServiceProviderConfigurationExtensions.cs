@@ -1,4 +1,7 @@
-namespace HappyTravel.Wakayama.Api.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+
+namespace HappyTravel.Wakayama.Common.Extensions;
 
 public static class ServiceProviderConfigurationExtensions
 {
