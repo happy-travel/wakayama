@@ -20,7 +20,7 @@ builder.ConfigureUpdaterLaunchSettings();
 builder.Services.AddHealthChecks()
     .AddCheck<ElasticHealthCheck>("Elastic");
 
-builder.Services.AddSingleton<GeoServiceElasticClient>();
+builder.Services.AddSingleton<ElasticGeoServiceClient>();
 builder.Services.AddSingleton<PhotonElasticClient>();
 builder.Services.AddSingleton<IPlacesUpdater, PhotonUpdater>();
 builder.Services.AddHostedService<UpdateExecutor>();
