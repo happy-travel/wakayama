@@ -10,6 +10,9 @@ public class ReverseGeocodingRequestValidator : AbstractValidator<ReverseGeocodi
     {
         const int maxNumberOfCoordinates = 1000;
         
-        RuleFor(r => r.Coordinates).NotEmpty().Must(r => r.Count <= maxNumberOfCoordinates).WithMessage($"The number of {nameof(Coordinates)} must be less than {maxNumberOfCoordinates}");
+        RuleFor(r => r.Coordinates)
+            .NotEmpty()
+            .Must(r => r.Count <= maxNumberOfCoordinates)
+            .WithMessage($"The number of {nameof(Coordinates)} must be less than {maxNumberOfCoordinates}");
     }
 }
