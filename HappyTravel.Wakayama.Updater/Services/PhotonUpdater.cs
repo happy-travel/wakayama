@@ -14,9 +14,9 @@ namespace HappyTravel.Wakayama.Updater.Services;
 
 public class PhotonUpdater : IPlacesUpdater
 {
-    public PhotonUpdater(GeoServiceElasticClient geoServiceElasticClient, PhotonElasticClient photonElasticClient, IOptions<ElasticOptions> elasticOptions, ILogger<PhotonUpdater> logger)
+    public PhotonUpdater(ElasticGeoServiceClient elasticGeoServiceClient, PhotonElasticClient photonElasticClient, IOptions<ElasticOptions> elasticOptions, ILogger<PhotonUpdater> logger)
     {
-        _geoServiceElasticClient = geoServiceElasticClient;
+        _elasticGeoServiceClient = elasticGeoServiceClient;
         _photonElasticClient = photonElasticClient;
         _indexNames = elasticOptions.Value.Indexes;
         _logger = logger;
@@ -62,16 +62,16 @@ public class PhotonUpdater : IPlacesUpdater
         
         if (launchMode == LaunchMode.Full)
         {
-            var removeIndexResponse = await _geoServiceElasticClient.RemoveIndex(_indexNames.Places, cancellationToken);
+            var removeIndexResponse = await _elasticGeoServiceClient.RemoveIndex(_indexNames.Places, cancellationToken);
             if (removeIndexResponse.OriginalException is not null)
                 throw removeIndexResponse.OriginalException;
 
             _logger.LogElasticIndexRemoved(_indexNames.Places);
         }
 
-        if (!(await _geoServiceElasticClient.Client.Indices.ExistsAsync(_indexNames.Places, ct: cancellationToken)).Exists)
+        if (!(await _elasticGeoServiceClient.Client.Indices.ExistsAsync(_indexNames.Places, ct: cancellationToken)).Exists)
         {
-            var createIndexResponse = await _geoServiceElasticClient.CreatePlacesIndex(cancellationToken);
+            var createIndexResponse = await _elasticGeoServiceClient.CreatePlacesIndex(cancellationToken);
             if (createIndexResponse.OriginalException is not null)
                 throw createIndexResponse.OriginalException;
             
@@ -82,7 +82,7 @@ public class PhotonUpdater : IPlacesUpdater
 
     private async Task<long> GetLastOsmId()
     {
-        var lastOsmIdResponse = await _geoServiceElasticClient.Client
+        var lastOsmIdResponse = await _elasticGeoServiceClient.Client
             .SearchAsync<Place>(s
                 => s.Index(_indexNames.Places)
                     .Fields(f => f.Field(p => p.OsmId))
@@ -100,7 +100,7 @@ public class PhotonUpdater : IPlacesUpdater
     
     
     private Task<CountResponse> GetTotalNumberOfUploadedPlaces(CancellationToken cancellationToken)
-        => _geoServiceElasticClient.Client.CountAsync<Place>(c => c.Index(_indexNames.Places), cancellationToken);
+        => _elasticGeoServiceClient.Client.CountAsync<Place>(c => c.Index(_indexNames.Places), cancellationToken);
     
     
     private async IAsyncEnumerable<List<Place>> DownloadPhotonPlaces(long lastOsmId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -137,7 +137,7 @@ public class PhotonUpdater : IPlacesUpdater
     
     
     private Task<BulkResponse> UploadPlaces(IEnumerable<Place> items, CancellationToken cancellationToken) 
-        => _geoServiceElasticClient.Client.BulkAsync(b 
+        => _elasticGeoServiceClient.Client.BulkAsync(b 
             => b.Index(_indexNames.Places).IndexMany(items), cancellationToken);
 
 
@@ -163,7 +163,7 @@ public class PhotonUpdater : IPlacesUpdater
     }
     
     
-    private readonly GeoServiceElasticClient _geoServiceElasticClient;
+    private readonly ElasticGeoServiceClient _elasticGeoServiceClient;
     private readonly PhotonElasticClient _photonElasticClient;
     private readonly IndexNames _indexNames;
     private readonly ILogger<PhotonUpdater> _logger;

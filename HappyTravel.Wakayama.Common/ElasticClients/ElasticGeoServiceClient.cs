@@ -7,12 +7,12 @@ using Nest;
 
 namespace HappyTravel.Wakayama.Common.ElasticClients;
 
-public sealed class GeoServiceElasticClient
+public sealed class ElasticGeoServiceClient
 {
-    public GeoServiceElasticClient(IOptions<ElasticOptions> elasticOptions, ILogger<GeoServiceElasticClient> logger)
+    public ElasticGeoServiceClient(IOptions<ElasticOptions> elasticOptions, ILogger<ElasticGeoServiceClient> logger)
     {
         _logger = logger;
-        Client = new ElasticClient(elasticOptions.Value.ClientSettings);
+        Client = new ElasticClient(elasticOptions.Value.ClientSettings.EnableDebugMode());
         _indexNames = elasticOptions.Value.Indexes;
     }
 
@@ -141,5 +141,5 @@ public sealed class GeoServiceElasticClient
 
     public IElasticClient Client { get; }
     private readonly IndexNames _indexNames;
-    private readonly ILogger<GeoServiceElasticClient> _logger;
+    private readonly ILogger<ElasticGeoServiceClient> _logger;
 }

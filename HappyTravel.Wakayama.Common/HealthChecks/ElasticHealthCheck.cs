@@ -7,15 +7,15 @@ namespace HappyTravel.Wakayama.Common.HealthChecks;
 
 public class ElasticHealthCheck : IHealthCheck
 {
-    public ElasticHealthCheck(GeoServiceElasticClient elasticClient)
+    public ElasticHealthCheck(ElasticGeoServiceClient client)
     {
-        _elasticClient = elasticClient;
+        _client = client;
     }
     
     
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var response = await _elasticClient.Client.Cluster.HealthAsync(new ClusterHealthRequest(), cancellationToken);
+        var response = await _client.Client.Cluster.HealthAsync(new ClusterHealthRequest(), cancellationToken);
             
         return !response.IsValid 
             ? HealthCheckResult.Unhealthy(response.ToString()) 
@@ -35,5 +35,5 @@ public class ElasticHealthCheck : IHealthCheck
     }
     
 
-    private readonly GeoServiceElasticClient _elasticClient;
+    private readonly ElasticGeoServiceClient _client;
 }

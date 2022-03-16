@@ -44,22 +44,22 @@ public record Place
     public MultiLanguage Country { get; set; }
     
     [PropertyName("locality")]
-    public MultiLanguage Locality { get; set; }
+    public MultiLanguage? Locality { get; set; }
     
     [PropertyName("state")]
-    public MultiLanguage State { get; set; }
+    public MultiLanguage? State { get; set; }
     
     [PropertyName("district")]
-    public MultiLanguage District { get; set; }
+    public MultiLanguage? District { get; set; }
     
     [PropertyName("county")]
-    public MultiLanguage County { get; set; }
+    public MultiLanguage? County { get; set; }
     
     [PropertyName("city")]
-    public MultiLanguage City { get; set; }
+    public MultiLanguage? City { get; set; }
     
     [PropertyName("street")]
-    public MultiLanguage Street { get; set; }
+    public MultiLanguage? Street { get; set; }
     
     [PropertyName("collector")]
     public MultiLanguage Collector { get; set; }

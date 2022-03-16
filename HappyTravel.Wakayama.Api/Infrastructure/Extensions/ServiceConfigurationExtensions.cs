@@ -1,7 +1,12 @@
 using System.Reflection;
+using FluentValidation.AspNetCore;
 using HappyTravel.ErrorHandling.Extensions;
+using HappyTravel.LocationNameNormalizer.Extensions;
 using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
+using HappyTravel.Wakayama.Api.Services;
+using HappyTravel.Wakayama.Common.ElasticClients;
+using HappyTravel.Wakayama.Common.Extensions;
 using HappyTravel.Wakayama.Common.Helpers;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -22,17 +27,15 @@ public static class ServiceConfigurationExtensions
         });
         
         vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", builder.Configuration)).GetAwaiter().GetResult();
-
-        builder.Services
-            .AddMvcCore();
-
-
+        
+        builder.ConfigureElasticClient(vaultClient);
+        
+        builder.Services.AddMvcCore();
         builder.Services
             .AddProblemDetailsErrorHandling()
             .AddHttpContextAccessor()
             .ConfigureApiVersioning()
             .ConfigureSwagger()
-            .ConfigureElastic(vaultClient, configuration)
             .ConfigureAuthentication(vaultClient, builder.Configuration)
             .AddAuthorization()
             .AddTracing(builder.Configuration, options =>
@@ -40,13 +43,28 @@ public static class ServiceConfigurationExtensions
                 options.ServiceName = $"{builder.Environment.ApplicationName}-{builder.Environment.EnvironmentName}";
                 options.JaegerHost = builder.Environment.IsLocal()
                     ? builder.Configuration.GetValue<string>("Jaeger:AgentHost")
-                    : builder.Configuration.GetValue<string>(builder.Configuration.GetValue<string>("Jaeger:AgentHost"));
+                    : builder.Configuration.GetValue<string>(
+                        builder.Configuration.GetValue<string>("Jaeger:AgentHost"));
                 options.JaegerPort = builder.Environment.IsLocal()
                     ? builder.Configuration.GetValue<int>("Jaeger:AgentPort")
                     : builder.Configuration.GetValue<int>(builder.Configuration.GetValue<string>("Jaeger:AgentPort"));
             })
+            .AddNameNormalizationServices()
+            .AddFluentValidation(fv =>
+            {
+                fv.DisableDataAnnotationsValidation = true;
+                fv.ImplicitlyValidateRootCollectionElements = true;
+                fv.ImplicitlyValidateChildProperties = true;
+                fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            })
             .AddHealthChecks();
+            
+        builder.Services
+            .AddSingleton<ElasticGeoServiceClient>()
+            .AddTransient<IReverseGeocodingService, ReverseGeocodingService>()
+            .AddTransient<ReverseGeocodingResponseBuilder>();
     }
+    
     
     public static IServiceCollection ConfigureApiVersioning(this IServiceCollection services) 
         => services.AddApiVersioning(options =>
@@ -72,7 +90,7 @@ public static class ServiceConfigurationExtensions
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.ApiKey
             });
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
@@ -91,12 +109,6 @@ public static class ServiceConfigurationExtensions
             });
         });
     
-    
-    public static IServiceCollection ConfigureElastic(this IServiceCollection services, VaultClient.VaultClient vaultClient, IConfiguration configuration)
-    {
-        return services;
-    }
-        
         
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IVaultClient vaultClient, IConfiguration configuration)
     {
