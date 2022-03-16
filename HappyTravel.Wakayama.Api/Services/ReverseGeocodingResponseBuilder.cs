@@ -36,7 +36,12 @@ public class ReverseGeocodingResponseBuilder
     {
         var normalizedCountry = _locationNameNormalizer.GetNormalizedCountryName(place.Country.En ?? place.Country.Default);
         var normalizedCountryCode = _locationNameNormalizer.GetNormalizedCountryCode(normalizedCountry, place.CountryCode);
-        var normalizedCity = _locationNameNormalizer.GetNormalizedLocalityName(normalizedCountry, place.City.En ?? place.City.Default);
+
+        var city = GetValue(place.City);
+        
+        var normalizedCity = !string.IsNullOrEmpty(city)
+            ? _locationNameNormalizer.GetNormalizedLocalityName(normalizedCountry, city)
+            : string.Empty;
         
         return new()
         {
@@ -49,8 +54,8 @@ public class ReverseGeocodingResponseBuilder
             Locality = GetValue(place.Locality),
             Street = GetValue(place.Street)
         };
-
         
+
         string GetValue(MultiLanguage? obj)
         {
             if (obj is null)
