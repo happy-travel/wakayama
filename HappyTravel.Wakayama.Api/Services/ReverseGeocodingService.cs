@@ -16,29 +16,49 @@ public class ReverseGeocodingService : IReverseGeocodingService
         _indexes = elasticOptions.Value.Indexes;
         _reverseGeocodingResponseBuilder = reverseGeocodingResponseBuilder;
     }
-
+    
 
     public async Task<ReverseGeocodingResponse> Search(ReverseGeocodingRequest request, CancellationToken cancellationToken)
     {
+        const int maxSearchDistanceInKm = 5;
         var elasticClient = _geoServiceClient.Client;
-        var distance = new Distance(1, DistanceUnit.Kilometers);
-        var operations = new Dictionary<string, ISearchRequest>();
+        var coordinates = request.Coordinates;
         
-        for (var i = 0; i < request.Coordinates.Count; i++)
+        var searchResponseStore = new Dictionary<string, Place>(coordinates.Count);
+        List<int> coordinateToSearchIndexes = Enumerable.Range(0, coordinates.Count).ToList();
+
+        for (var attempt = 1; attempt <= maxSearchDistanceInKm; attempt++)
         {
-            var point = request.Coordinates[i];
-            var searchRequest = CreateSearchRequest(point, distance);
-            operations.Add(i.ToString(), searchRequest);
+            var operations = new Dictionary<string, ISearchRequest>(coordinateToSearchIndexes.Count);
+            var distance = new Distance(attempt, DistanceUnit.Kilometers);
+
+            foreach (var coordinateIndex in coordinateToSearchIndexes)
+                operations.Add(coordinateIndex.ToString(), CreateSearchRequest(coordinates[coordinateIndex], distance));
+
+            var multiSearchResponse = await elasticClient.MultiSearchAsync(new MultiSearchRequest
+            {
+                Operations = operations
+            }, cancellationToken);
+
+            var emptyResponseIndexes = new List<int>();
+            
+            foreach (var coordinateIndex in coordinateToSearchIndexes)
+            {
+               var response = multiSearchResponse.GetResponse<Place>(coordinateIndex.ToString());
+               if (response.Documents.Any())
+                   searchResponseStore[coordinateIndex.ToString()] = response.Documents.First();
+               else
+                   emptyResponseIndexes.Add(coordinateIndex);
+            }
+            coordinateToSearchIndexes = emptyResponseIndexes;
+            
+            if (!coordinateToSearchIndexes.Any())
+                break;
         }
-        
-        var multiSearchResponse = await elasticClient.MultiSearchAsync(new MultiSearchRequest
-        {
-            Operations = operations
-        }, cancellationToken);
 
-        return _reverseGeocodingResponseBuilder.Build(multiSearchResponse);
+        return _reverseGeocodingResponseBuilder.Build(searchResponseStore);
     }
-
+    
 
     private SearchRequest<Place> CreateSearchRequest(GeoPoint point, Distance distance)
         => new (_indexes.Places)

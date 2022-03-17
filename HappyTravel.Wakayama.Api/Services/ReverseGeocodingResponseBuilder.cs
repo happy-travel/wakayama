@@ -1,7 +1,6 @@
 using HappyTravel.LocationNameNormalizer;
 using HappyTravel.Wakayama.Api.Models;
 using HappyTravel.Wakayama.Common.Models;
-using Nest;
 
 namespace HappyTravel.Wakayama.Api.Services;
 
@@ -11,22 +10,15 @@ public class ReverseGeocodingResponseBuilder
     {
         _locationNameNormalizer = locationNameNormalizer;
     }
-    
-    
-    public ReverseGeocodingResponse Build(MultiSearchResponse searchResponse)
-    {
-        var responses = searchResponse.GetResponses<Place>().ToList();
-        var reverseGeocodingResponse = new ReverseGeocodingResponse();
-        for (var i = 0; i < responses.Count; i++)
-        {
-            var response = responses[i];
-            if (response.Documents.Any())
-            {
-                reverseGeocodingResponse.ReverseGeoCodingInfo.Add(i, Build(response.Documents.First()));
-            }
-        }
 
-        searchResponse.GetResponses<Place>();
+
+    public ReverseGeocodingResponse Build(Dictionary<string, Place> searchResponse)
+    {
+        var reverseGeocodingResponse = new ReverseGeocodingResponse();
+        foreach (var (index, place) in searchResponse)
+        {
+            reverseGeocodingResponse.ReverseGeoCodingInfo.Add(int.Parse(index), Build(place));
+        }
 
         return reverseGeocodingResponse;
     }
