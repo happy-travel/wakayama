@@ -27,7 +27,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
         var searchResponseStore = new Dictionary<string, Place>(coordinates.Count);
         List<int> coordinateToSearchIndexes = Enumerable.Range(0, coordinates.Count).ToList();
 
-        for (var attempt = 1; attempt < maxSearchDistanceInKm; attempt++)
+        for (var attempt = 1; attempt <= maxSearchDistanceInKm; attempt++)
         {
             var operations = new Dictionary<string, ISearchRequest>(coordinateToSearchIndexes.Count);
             var distance = new Distance(attempt, DistanceUnit.Kilometers);
