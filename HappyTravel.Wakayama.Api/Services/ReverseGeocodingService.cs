@@ -18,14 +18,14 @@ public class ReverseGeocodingService : IReverseGeocodingService
     }
     
 
-    public async Task<ReverseGeocodingResponse> Search(ReverseGeocodingRequest request, CancellationToken cancellationToken)
+    public async Task<ResponseBuilder> Search(ReverseGeocodingRequest request, CancellationToken cancellationToken)
     {
-        const int maxSearchDistanceInKm = 5;
+        const int maxSearchDistanceInKm = 10;
         var elasticClient = _geoServiceClient.Client;
         var coordinates = request.Coordinates;
         
         var searchResponseStore = new Dictionary<string, Place>(coordinates.Count);
-        List<int> coordinateToSearchIndexes = Enumerable.Range(0, coordinates.Count).ToList();
+        var coordinateToSearchIndexes = Enumerable.Range(0, coordinates.Count).ToList();
 
         for (var attempt = 1; attempt <= maxSearchDistanceInKm; attempt++)
         {
@@ -33,7 +33,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
             var distance = new Distance(attempt, DistanceUnit.Kilometers);
 
             foreach (var coordinateIndex in coordinateToSearchIndexes)
-                operations.Add(coordinateIndex.ToString(), CreateSearchRequest(coordinates[coordinateIndex], distance));
+                operations.Add(coordinateIndex.ToString(), CreateSearchRequest(coordinates[coordinateIndex], distance,  request));
 
             var multiSearchResponse = await elasticClient.MultiSearchAsync(new MultiSearchRequest
             {
@@ -44,11 +44,11 @@ public class ReverseGeocodingService : IReverseGeocodingService
             
             foreach (var coordinateIndex in coordinateToSearchIndexes)
             {
-               var response = multiSearchResponse.GetResponse<Place>(coordinateIndex.ToString());
-               if (response.Documents.Any())
-                   searchResponseStore[coordinateIndex.ToString()] = response.Documents.First();
-               else
-                   emptyResponseIndexes.Add(coordinateIndex);
+                var response = multiSearchResponse.GetResponse<Place>(coordinateIndex.ToString());
+                if (response.Documents.Any())
+                    searchResponseStore[coordinateIndex.ToString()] = response.Documents.First();
+                else
+                    emptyResponseIndexes.Add(coordinateIndex);
             }
             coordinateToSearchIndexes = emptyResponseIndexes;
             
@@ -59,33 +59,77 @@ public class ReverseGeocodingService : IReverseGeocodingService
         return _reverseGeocodingResponseBuilder.Build(searchResponseStore);
     }
     
-
-    private SearchRequest<Place> CreateSearchRequest(GeoPoint point, Distance distance)
-        => new (_indexes.Places)
+    
+    private SearchRequest<Place> CreateSearchRequest(GeoPoint point, Distance distance, ReverseGeocodingRequest request)
     {
-        Query = new GeoDistanceQuery
+        var mustConditions = new List<QueryContainer>
         {
-            Field = nameof(Place.Coordinate).ToLowerInvariant(),
-            Distance = distance,
-            Location = new GeoLocation(point.Latitude, point.Longitude)
-        },
-        Sort = new List<ISort>
-        {
-            new GeoDistanceSort
+            new(new GeoDistanceQuery
             {
                 Field = nameof(Place.Coordinate).ToLowerInvariant(),
-                Order = SortOrder.Ascending,
-                Points = new []
-                {
-                    new GeoCoordinate(point.Latitude, point.Longitude)
-                }
+                Distance = distance,
+                Location = new GeoLocation(point.Latitude, point.Longitude)
+            }),
+            new ExistsQuery
+            {
+                Field = $"{nameof(Place.CountryCode)}".ToLowerInvariant()
             }
-        },
-        From = 0,
-        Size = 1
-    };
+        };
 
-    
+        if (string.IsNullOrEmpty(request.CountryCode))
+        {
+            mustConditions.Add(new ExistsQuery
+            {
+                Field = $"{nameof(Place.CountryCode)}".ToLowerInvariant()
+            });
+        }
+        else
+        {
+            mustConditions.Add(new MatchQuery
+            {
+                Field = $"{nameof(Place.CountryCode)}".ToLowerInvariant(),
+                Query = request.CountryCode
+            });
+        }
+
+        if (request.IsCityRequired)
+        {
+            mustConditions.Add(new ExistsQuery
+            {
+                Field = $"{nameof(Place.City)}".ToLowerInvariant()
+            });
+        }
+
+        return new(_indexes.Places)
+        {
+            Query = new BoolQuery
+            {
+                Filter = new[]
+                {
+                    new QueryContainer(new BoolQuery
+                    {
+                        Must = mustConditions
+                    })
+                }
+            },
+            Sort = new List<ISort>
+            {
+                new GeoDistanceSort
+                {
+                    Field = nameof(Place.Coordinate).ToLowerInvariant(),
+                    Order = SortOrder.Ascending,
+                    Points = new[]
+                    {
+                        new GeoCoordinate(point.Latitude, point.Longitude)
+                    }
+                }
+            },
+            From = 0,
+            Size = 1
+        };
+    }
+
+
     private readonly IndexNames _indexes;
     private readonly ElasticGeoServiceClient _geoServiceClient;
     private readonly ReverseGeocodingResponseBuilder _reverseGeocodingResponseBuilder;

@@ -17,31 +17,31 @@ public record Place
     public string CountryCode { get; set; }
     
     [PropertyName("postcode")]
-    public string Postcode { get; set; }
+    public string? Postcode { get; set; }
     
     [PropertyName("osm_key")]
-    public string OsmKey { get; set; }
+    public string? OsmKey { get; set; }
     
     [PropertyName("osm_type")]
-    public string OsmType { get; set; }
+    public string? OsmType { get; set; }
     
     [PropertyName("housenumber")]
-    public string HouseNumber { get; set; }
+    public string? HouseNumber { get; set; }
     
     [PropertyName("osm_value")]
-    public string OsmValue { get; set; }
+    public string? OsmValue { get; set; }
     
     [PropertyName("coordinate")]
-    public GeoLocation Coordinate {get; set; }
+    public GeoLocation? Coordinate {get; set; }
     
     [PropertyName("extent")]  
-    public EnvelopeGeoShape Extent { get; set; }
+    public EnvelopeGeoShape? Extent { get; set; }
     
     [PropertyName("name")]
-    public MultiLanguageName Name {get; set; }
+    public MultiLanguageName? Name {get; set; }
 
     [PropertyName("country")]
-    public MultiLanguage Country { get; set; }
+    public MultiLanguage? Country { get; set; }
     
     [PropertyName("locality")]
     public MultiLanguage? Locality { get; set; }
@@ -62,5 +62,5 @@ public record Place
     public MultiLanguage? Street { get; set; }
     
     [PropertyName("collector")]
-    public MultiLanguage Collector { get; set; }
+    public MultiLanguage? Collector { get; set; }
 }

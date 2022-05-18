@@ -8,7 +8,7 @@ public class ReverseGeocodingRequestValidator : AbstractValidator<ReverseGeocodi
 {
     public ReverseGeocodingRequestValidator()
     {
-        const int maxNumberOfCoordinates = 1000;
+        const int maxNumberOfCoordinates = 5000;
         
         RuleFor(r => r.Coordinates)
             .NotEmpty()

@@ -3,20 +3,8 @@ using Nest;
 
 namespace HappyTravel.Wakayama.Common.Models;
 
-public record MultiLanguageName
+public record MultiLanguageName : MultiLanguage
 {
-    [PropertyName("default")]
-    public string Default { get; set; }
-    
-    [PropertyName("en")]
-    public string En { get; set; }
-    
-    [PropertyName("de")]
-    public string De { get; set; }
-    
-    [PropertyName("fr")]
-    public string Fr { get; set; }
-    
     [PropertyName("alt")]
     public string Alt { get; set; }
     

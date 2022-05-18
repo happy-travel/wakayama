@@ -1,4 +1,5 @@
 using HappyTravel.LocationNameNormalizer;
+using HappyTravel.Wakayama.Api.Infrastructure.Extensions;
 using HappyTravel.Wakayama.Api.Models;
 using HappyTravel.Wakayama.Common.Models;
 
@@ -12,10 +13,10 @@ public class ReverseGeocodingResponseBuilder
     }
 
 
-    public ReverseGeocodingResponse Build(Dictionary<string, Place> searchResponse)
+    public ResponseBuilder Build(Dictionary<string, Place> response)
     {
-        var reverseGeocodingResponse = new ReverseGeocodingResponse();
-        foreach (var (index, place) in searchResponse)
+        var reverseGeocodingResponse = new ResponseBuilder();
+        foreach (var (index, place) in response)
         {
             reverseGeocodingResponse.ReverseGeoCodingInfo.Add(int.Parse(index), Build(place));
         }
@@ -23,41 +24,30 @@ public class ReverseGeocodingResponseBuilder
         return reverseGeocodingResponse;
     }
 
-    
-    private ReverseGeoCodingInfo Build(Place place)
+
+    private GeoInfoResponse Build(Place place)
     {
-        var normalizedCountry = _locationNameNormalizer.GetNormalizedCountryName(place.Country.En ?? place.Country.Default);
+        var normalizedCountry = _locationNameNormalizer.GetNormalizedCountryName(place.Country!.En ?? place.Country.Default);
         var normalizedCountryCode = _locationNameNormalizer.GetNormalizedCountryCode(normalizedCountry, place.CountryCode);
 
-        var city = GetValue(place.City);
-        
+        var city = place.City.GetValue();
+
         var normalizedCity = !string.IsNullOrEmpty(city)
             ? _locationNameNormalizer.GetNormalizedLocalityName(normalizedCountry, city)
-            : string.Empty;
-        
+            : null;
+
         return new()
         {
+            OsmId = place.OsmId,
             Country = normalizedCountry,
             CountryCode = normalizedCountryCode,
-            State = GetValue(place.State),
-            District = GetValue(place.District),
-            County = GetValue(place.County),
+            State = place.State.GetValue(),
+            District = place.State.GetValue(),
+            County = place.State.GetValue(),
             City = normalizedCity,
-            Locality = GetValue(place.Locality),
-            Street = GetValue(place.Street)
+            Locality = place.State.GetValue(),
+            Street = place.State.GetValue()
         };
-        
-
-        string GetValue(MultiLanguage? obj)
-        {
-            if (obj is null)
-                return string.Empty;
-            
-            if (obj.En is not null)
-                return obj.En;
-
-            return obj.Default ?? string.Empty;
-        }
     }
 
 

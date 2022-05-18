@@ -8,7 +8,7 @@ namespace HappyTravel.Wakayama.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/{v:apiVersion}/geocoding")]
-public class ReverseGeocodingController : Controller
+public class ReverseGeocodingController : BaseController
 {
     public ReverseGeocodingController(IReverseGeocodingService reverseGeocodingService)
     {
@@ -22,8 +22,8 @@ public class ReverseGeocodingController : Controller
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("reverse")]
-    [ProducesResponseType(typeof(ReverseGeocodingResponse), (int) HttpStatusCode.OK)]
+    [HttpPost("reverse")]
+    [ProducesResponseType(typeof(SortedDictionary<int, GeoInfoResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Reverse([FromBody] ReverseGeocodingRequest request, CancellationToken cancellationToken) 
         => Ok(await _reverseGeocodingService.Search(request, cancellationToken));
 
