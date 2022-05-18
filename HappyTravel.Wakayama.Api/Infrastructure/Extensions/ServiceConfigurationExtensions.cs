@@ -73,7 +73,7 @@ public static class ServiceConfigurationExtensions
             .AddTransient<IReverseGeocodingService, ReverseGeocodingService>()
             .AddTransient<ReverseGeocodingResponseBuilder>()
             .AddTransient<PlaceResponseBuilder>()
-            .AddTransient<IPlaceService, PlaceService>();
+            .AddTransient<IPlaceSearchingService, PlaceSearchingService>();
     }
     
     

@@ -9,9 +9,9 @@ namespace HappyTravel.Wakayama.Api.Controllers;
 [Route("api/{v:apiVersion}/places")]
 public class PlaceController : BaseController
 {
-    public PlaceController(IPlaceService placeService)
+    public PlaceController(IPlaceSearchingService placeSearchingService)
     {
-        _placeService = placeService;
+        _placeSearchingService = placeSearchingService;
     }
 
     
@@ -24,7 +24,7 @@ public class PlaceController : BaseController
     [HttpGet("countries/{countryCode}/cities")]
     [ProducesResponseType(typeof(List<GeoInfoResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCities(string countryCode, CancellationToken cancellationToken = default)
-        => Ok(await _placeService.GetCities(countryCode, cancellationToken));
+        => Ok(await _placeSearchingService.GetCities(countryCode, cancellationToken));
     
     
     /// <summary>
@@ -35,8 +35,8 @@ public class PlaceController : BaseController
     [HttpGet("countries")]
     [ProducesResponseType(typeof(List<GeoInfoResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCountries(CancellationToken cancellationToken = default)
-        => Ok(await _placeService.GetCountries(cancellationToken));
+        => Ok(await _placeSearchingService.GetCountries(cancellationToken));
     
     
-    private readonly IPlaceService _placeService;
+    private readonly IPlaceSearchingService _placeSearchingService;
 }

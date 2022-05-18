@@ -7,9 +7,9 @@ using Nest;
 
 namespace HappyTravel.Wakayama.Api.Services;
 
-public class PlaceService : IPlaceService
+public class PlaceSearchingService : IPlaceSearchingService
 {
-    public PlaceService(ElasticGeoServiceClient elasticGeoServiceClient, PlaceResponseBuilder placeResponseBuilder, IOptions<ElasticOptions> elasticOptions)
+    public PlaceSearchingService(ElasticGeoServiceClient elasticGeoServiceClient, PlaceResponseBuilder placeResponseBuilder, IOptions<ElasticOptions> elasticOptions)
     {
         _elasticGeoServiceClient = elasticGeoServiceClient;
         _elasticOptions = elasticOptions.Value;
@@ -38,19 +38,19 @@ public class PlaceService : IPlaceService
     private SearchDescriptor<Place> GetCitySearchDescriptor(string countryCode)
         => new SearchDescriptor<Place>(_elasticOptions.Indexes.Places).Query(qc
                 => qc.Bool(bq => bq.Filter(qcd
-                    => qcd.Term(tq => tq.Field(p => p.CountryCode)
-                        .Value(countryCode)), qcd => qcd.Exists(eq => eq.Field(p => p.Name)), qcd
+                    => qcd.Term(tq => tq.Field(p => p.CountryCode).Value(countryCode)), qcd 
+                    => qcd.Exists(eq => eq.Field(p => p.Name)), qcd
                     => qcd.Term(tq => tq.Field(p => p.OsmValue).Value("city")))))
             .Sort(sd => sd.Descending(p => p.OsmId));
 
 
     private SearchDescriptor<Place> GetCountrySearchDescriptor()
         => new SearchDescriptor<Place>(_elasticOptions.Indexes.Places).Query(qc 
-            => qc.Bool(bq
-            => bq.Filter(qcd => qcd.Term(tq 
-                => tq.Field(p => p.OsmValue).Value("country")), 
-                qcd => qcd.Exists(eq => eq.Field(p => p.Name)),
-                qcd => qcd.Exists(eq => eq.Field(p => p.CountryCode)))));
+            => qc.Bool(bq => bq.Filter(qcd 
+                    => qcd.Term(tq => tq.Field(p => p.OsmValue).Value("country")), qcd 
+                    => qcd.Exists(eq => eq.Field(p => p.Name)), qcd 
+                    => qcd.Exists(eq => eq.Field(p => p.CountryCode)))))
+            .Sort(sd => sd.Ascending(p => p.CountryCode));
 
     
     private async Task<List<Place>> GetPlaces(SearchDescriptor<Place> searchDescriptor, CancellationToken cancellationToken = default)
