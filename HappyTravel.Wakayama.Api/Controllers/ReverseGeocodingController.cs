@@ -17,6 +17,18 @@ public class ReverseGeocodingController : BaseController
 
     
     /// <summary>
+    /// Returns cities by coordinates
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("reverse/cities")]
+    [ProducesResponseType(typeof(SortedDictionary<int, GeoInfoResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetReverseCities([FromBody] ReverseGeocodingRequest request, CancellationToken cancellationToken) 
+        => Ok(await _reverseGeocodingService.GetCities(request, cancellationToken));
+    
+    
+    /// <summary>
     /// Returns geo-information by coordinates
     /// </summary>
     /// <param name="request"></param>
@@ -24,8 +36,8 @@ public class ReverseGeocodingController : BaseController
     /// <returns></returns>
     [HttpPost("reverse")]
     [ProducesResponseType(typeof(SortedDictionary<int, GeoInfoResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Reverse([FromBody] ReverseGeocodingRequest request, CancellationToken cancellationToken) 
-        => Ok(await _reverseGeocodingService.Search(request, cancellationToken));
+    public async Task<IActionResult> GetReverse([FromBody] ReverseGeocodingRequest request, CancellationToken cancellationToken) 
+        => Ok(await _reverseGeocodingService.Get(request, cancellationToken));
 
 
     private readonly IReverseGeocodingService _reverseGeocodingService;

@@ -7,13 +7,13 @@ using Nest;
 
 namespace HappyTravel.Wakayama.Api.Services;
 
-public class PlaceSearchingService : IPlaceSearchingService
+public class PlaceService : IPlaceService
 {
-    public PlaceSearchingService(ElasticGeoServiceClient elasticGeoServiceClient, PlaceResponseBuilder placeResponseBuilder, IOptions<ElasticOptions> elasticOptions)
+    public PlaceService(ElasticGeoServiceClient elasticGeoServiceClient, ResponseBuilder responseBuilder, IOptions<ElasticOptions> elasticOptions)
     {
         _elasticGeoServiceClient = elasticGeoServiceClient;
         _elasticOptions = elasticOptions.Value;
-        _placeResponseBuilder = placeResponseBuilder;
+        _responseBuilder = responseBuilder;
     }
 
     
@@ -22,7 +22,7 @@ public class PlaceSearchingService : IPlaceSearchingService
         var searchDescriptor = GetCitySearchDescriptor(countryCode.ToUpperInvariant());
         var places = await GetPlaces(searchDescriptor, cancellationToken);
 
-        return places.Select(_placeResponseBuilder.BuildCities).ToList();
+        return places.Select(_responseBuilder.BuildCity).ToList();
     }
     
     
@@ -31,7 +31,7 @@ public class PlaceSearchingService : IPlaceSearchingService
         var searchDescriptor = GetCountrySearchDescriptor();
         var places = await GetPlaces(searchDescriptor, cancellationToken);
         
-        return places.Select(_placeResponseBuilder.BuildCountries).ToList();
+        return places.Select(_responseBuilder.BuildCountry).ToList();
     }
 
 
@@ -86,6 +86,6 @@ public class PlaceSearchingService : IPlaceSearchingService
 
 
     private readonly ElasticGeoServiceClient _elasticGeoServiceClient;
-    private readonly PlaceResponseBuilder _placeResponseBuilder;
+    private readonly ResponseBuilder _responseBuilder;
     private readonly ElasticOptions _elasticOptions;
 }

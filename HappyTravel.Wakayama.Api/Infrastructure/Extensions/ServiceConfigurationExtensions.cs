@@ -71,9 +71,8 @@ public static class ServiceConfigurationExtensions
         builder.Services
             .AddSingleton<ElasticGeoServiceClient>()
             .AddTransient<IReverseGeocodingService, ReverseGeocodingService>()
-            .AddTransient<ReverseGeocodingResponseBuilder>()
-            .AddTransient<PlaceResponseBuilder>()
-            .AddTransient<IPlaceSearchingService, PlaceSearchingService>();
+            .AddTransient<IPlaceService, PlaceService>()
+            .AddTransient<ResponseBuilder>();
     }
     
     
