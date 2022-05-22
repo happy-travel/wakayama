@@ -57,7 +57,7 @@ public class PlaceService : IPlaceService
     {
         var cities = new List<Place>();
         long? searchAfterId = null;
-        var batchSize = 10000;
+        const int batchSize = 10000;
         searchDescriptor.Size(batchSize);
         ISearchResponse<Place> searchResponse;
         do

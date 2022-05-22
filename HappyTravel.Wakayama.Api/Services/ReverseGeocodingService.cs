@@ -20,8 +20,8 @@ public class ReverseGeocodingService : IReverseGeocodingService
 
     public async Task<ReverseGeoCodingResponse> GetCities(ReverseGeocodingRequest request, CancellationToken cancellationToken)
     {
-        var attempts = 10;
-        var distancePerAttempt = 100;
+        const int attempts = 10;
+        const int distancePerAttempt = 100;
         
         var result = await GetPlacesAtDistance(request, CreateSearchCityRequest, attempts, distancePerAttempt, DistanceUnit.Kilometers, cancellationToken);
 
@@ -31,8 +31,8 @@ public class ReverseGeocodingService : IReverseGeocodingService
 
     public async Task<ReverseGeoCodingResponse> Get(ReverseGeocodingRequest request, CancellationToken cancellationToken)
     {
-        var attempts = 10;
-        var distancePerAttempt = 1;
+        const int attempts = 10;
+        const int distancePerAttempt = 1;
         
         var result = await GetPlacesAtDistance(request, CreateSearchPlaceRequest, attempts, distancePerAttempt, DistanceUnit.Kilometers, cancellationToken);
         
@@ -114,9 +114,10 @@ public class ReverseGeocodingService : IReverseGeocodingService
                 Distance = distance,
                 Location = new GeoLocation(point.Latitude, point.Longitude)
             }),
-            new ExistsQuery
+            new TermQuery
             {
-                Field = $"{nameof(Place.CountryCode)}".ToLowerInvariant()
+                Field = nameof(Place.CountryCode).ToLowerInvariant(),
+                Value = request.CountryCode
             },
             new TermQuery
             {
