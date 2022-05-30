@@ -166,7 +166,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
                 Operations = operations
             }, cancellationToken);
             
-            notFoundIndexes = GetNotFoundIndexesAndFillStore(multiSearchResponse, ref searchResponseStore, notFoundIndexes);
+            notFoundIndexes = GetNotFoundIndexesAndAddResponseDataToStore(multiSearchResponse, ref searchResponseStore, notFoundIndexes);
             
             if (!notFoundIndexes.Any())
                 break;
@@ -176,7 +176,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
     }
 
 
-    private List<int> GetNotFoundIndexesAndFillStore(MultiSearchResponse searchResponse, ref Dictionary<string, Place> responseStore, List<int> notFoundIndexes)
+    private List<int> GetNotFoundIndexesAndAddResponseDataToStore(MultiSearchResponse searchResponse, ref Dictionary<string, Place> responseStore, List<int> notFoundIndexes)
     {
         var newNotFoundIndexes = new List<int>();
         
