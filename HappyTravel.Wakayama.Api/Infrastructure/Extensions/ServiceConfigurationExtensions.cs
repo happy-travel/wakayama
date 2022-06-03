@@ -4,6 +4,7 @@ using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.LocationNameNormalizer.Extensions;
 using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
+using HappyTravel.Wakayama.Api.Infrastructure.Options;
 using HappyTravel.Wakayama.Api.Services;
 using HappyTravel.Wakayama.Common.ElasticClients;
 using HappyTravel.Wakayama.Common.Extensions;
@@ -36,7 +37,7 @@ public static class ServiceConfigurationExtensions
             .AddHttpContextAccessor()
             .ConfigureApiVersioning()
             .ConfigureSwagger()
-            .ConfigureAuthentication(vaultClient, builder.Configuration)
+            .ConfigureAuthentication(builder.Configuration)
             .AddAuthorization()
             .AddTracing(builder.Configuration, options =>
             {
@@ -110,17 +111,17 @@ public static class ServiceConfigurationExtensions
         });
     
         
-    public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IVaultClient vaultClient, IConfiguration configuration)
+    public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var authorityOptions = vaultClient.Get(configuration["AuthorityOptions"]).GetAwaiter().GetResult();
+        var authorityOptions = configuration.GetSection("AuthorityOptions").Get<AuthorityOptions>();
             
         services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-            .AddIdentityServerAuthentication(options =>
+            .AddJwtBearer(options =>
             {
-                options.Authority = authorityOptions["authorityUrl"];
-                options.ApiName = authorityOptions["apiName"];
+                options.Authority = authorityOptions.AuthorityUrl;
+                options.Audience = authorityOptions.Audience;
                 options.RequireHttpsMetadata = true;
-                options.SupportedTokens = SupportedTokens.Jwt;
+                options.AutomaticRefreshInterval = authorityOptions.AutomaticRefreshInterval;
             });
 
         return services;
