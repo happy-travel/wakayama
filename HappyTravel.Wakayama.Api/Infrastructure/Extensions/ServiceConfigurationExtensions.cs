@@ -113,7 +113,7 @@ public static class ServiceConfigurationExtensions
         
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var authorityOptions = configuration.GetSection("AuthorityOptions").Get<AuthorityOptions>();
+        var authorityOptions = configuration.GetSection("Authority").Get<AuthorityOptions>();
             
         services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
