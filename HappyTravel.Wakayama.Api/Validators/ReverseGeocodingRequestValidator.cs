@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Wakayama.Api.Validators;
 
-public class ReverseGeocodingRequestValidator : AbstractValidator<ReverseGeocodingRequest>
+public class ReverseGeocodingRequestValidator : AbstractValidator<ReverseGeoCodingRequest>
 {
     public ReverseGeocodingRequestValidator()
     {

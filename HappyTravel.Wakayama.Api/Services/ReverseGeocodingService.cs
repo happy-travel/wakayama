@@ -18,10 +18,15 @@ public class ReverseGeocodingService : IReverseGeocodingService
     }
 
 
-    public async Task<ReverseGeoCodingResponse> GetCities(ReverseGeocodingRequest request, CancellationToken cancellationToken)
+    public async Task<ReverseGeoCodingResponse> GetCities(CityReverseGeoCodingRequest cityReverseGeoCodingRequest, CancellationToken cancellationToken)
     {
         const int attempts = 10;
         const int distancePerAttempt = 100;
+        var request = new ReverseGeoCodingRequest
+        {
+            Coordinates = cityReverseGeoCodingRequest.Coordinates,
+            CountryCode = cityReverseGeoCodingRequest.CountryCode
+        };
         
         var result = await GetPlacesAtDistance(request, CreateSearchCityRequest, attempts, distancePerAttempt, DistanceUnit.Kilometers, cancellationToken);
 
@@ -29,7 +34,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
     }
 
 
-    public async Task<ReverseGeoCodingResponse> Get(ReverseGeocodingRequest request, CancellationToken cancellationToken)
+    public async Task<ReverseGeoCodingResponse> Get(ReverseGeoCodingRequest request, CancellationToken cancellationToken)
     {
         const int attempts = 10;
         const int distancePerAttempt = 1;
@@ -40,7 +45,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
     }
     
     
-    private SearchRequest<Place> CreateSearchPlaceRequest(GeoPoint point, Distance distance, ReverseGeocodingRequest request)
+    private SearchRequest<Place> CreateSearchPlaceRequest(GeoPoint point, Distance distance, ReverseGeoCodingRequest request)
     {
         var mustConditions = new List<QueryContainer>
         {
@@ -104,7 +109,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
     }
 
     private SearchRequest<Place> CreateSearchCityRequest(GeoPoint point, Distance distance,
-        ReverseGeocodingRequest request)
+        ReverseGeoCodingRequest request)
     {
         var mustConditions = new List<QueryContainer>
         {
@@ -150,7 +155,7 @@ public class ReverseGeocodingService : IReverseGeocodingService
         };
     }
 
-    private async Task<Dictionary<string, Place>> GetPlacesAtDistance(ReverseGeocodingRequest request, Func<GeoPoint, Distance, ReverseGeocodingRequest, ISearchRequest> createSearchRequestFunc,
+    private async Task<Dictionary<string, Place>> GetPlacesAtDistance(ReverseGeoCodingRequest request, Func<GeoPoint, Distance, ReverseGeoCodingRequest, ISearchRequest> createSearchRequestFunc,
         int attempts, int distancePerAttempt, DistanceUnit distanceUnit, CancellationToken cancellationToken)
     {
         var elasticClient = _geoServiceClient.Client;

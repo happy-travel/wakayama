@@ -4,6 +4,6 @@ namespace HappyTravel.Wakayama.Api.Services;
 
 public interface IReverseGeocodingService
 { 
-    Task<ReverseGeoCodingResponse> Get(ReverseGeocodingRequest request, CancellationToken cancellationToken);
-    Task<ReverseGeoCodingResponse> GetCities(ReverseGeocodingRequest request, CancellationToken cancellationToken);
+    Task<ReverseGeoCodingResponse> Get(ReverseGeoCodingRequest request, CancellationToken cancellationToken);
+    Task<ReverseGeoCodingResponse> GetCities(CityReverseGeoCodingRequest request, CancellationToken cancellationToken);
 }
