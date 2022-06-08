@@ -10,83 +10,195 @@ namespace HappyTravel.Wakayama.Api.Services;
 
 public class ReverseGeocodingService : IReverseGeocodingService
 {
-    public ReverseGeocodingService(ElasticGeoServiceClient geoServiceClient, IOptions<ElasticOptions> elasticOptions, ReverseGeocodingResponseBuilder reverseGeocodingResponseBuilder)
+    public ReverseGeocodingService(ElasticGeoServiceClient geoServiceClient, IOptions<ElasticOptions> elasticOptions, ResponseBuilder responseBuilder)
     {
         _geoServiceClient = geoServiceClient;
         _indexes = elasticOptions.Value.Indexes;
-        _reverseGeocodingResponseBuilder = reverseGeocodingResponseBuilder;
+        _responseBuilder = responseBuilder;
+    }
+
+
+    public async Task<ReverseGeoCodingResponse> GetCities(CityReverseGeoCodingRequest cityReverseGeoCodingRequest, CancellationToken cancellationToken)
+    {
+        const int attempts = 10;
+        const int distancePerAttempt = 100;
+        var request = new ReverseGeoCodingRequest
+        {
+            Coordinates = cityReverseGeoCodingRequest.Coordinates,
+            CountryCode = cityReverseGeoCodingRequest.CountryCode
+        };
+        
+        var result = await GetPlacesAtDistance(request, CreateSearchCityRequest, attempts, distancePerAttempt, DistanceUnit.Kilometers, cancellationToken);
+
+        return _responseBuilder.BuildCities(result);
+    }
+
+
+    public async Task<ReverseGeoCodingResponse> Get(ReverseGeoCodingRequest request, CancellationToken cancellationToken)
+    {
+        const int attempts = 10;
+        const int distancePerAttempt = 1;
+        
+        var result = await GetPlacesAtDistance(request, CreateSearchPlaceRequest, attempts, distancePerAttempt, DistanceUnit.Kilometers, cancellationToken);
+        
+        return _responseBuilder.Build(result);
     }
     
-
-    public async Task<ReverseGeocodingResponse> Search(ReverseGeocodingRequest request, CancellationToken cancellationToken)
+    
+    private SearchRequest<Place> CreateSearchPlaceRequest(GeoPoint point, Distance distance, ReverseGeoCodingRequest request)
     {
-        const int maxSearchDistanceInKm = 5;
+        var mustConditions = new List<QueryContainer>
+        {
+            new(new GeoDistanceQuery
+            {
+                Field = nameof(Place.Coordinate).ToLowerInvariant(),
+                Distance = distance,
+                Location = new GeoLocation(point.Latitude, point.Longitude)
+            }),
+            new ExistsQuery
+            {
+                Field = $"{nameof(Place.CountryCode)}".ToLowerInvariant()
+            }
+        };
+
+        if (string.IsNullOrEmpty(request.CountryCode))
+        {
+            mustConditions.Add(new ExistsQuery
+            {
+                Field = $"{nameof(Place.CountryCode)}".ToLowerInvariant()
+            });
+        }
+        else
+        {
+            mustConditions.Add(new MatchQuery
+            {
+                Field = $"{nameof(Place.CountryCode)}".ToLowerInvariant(),
+                Query = request.CountryCode
+            });
+        }
+
+        if (request.IsCityRequired)
+        {
+            mustConditions.Add(new ExistsQuery
+            {
+                Field = $"{nameof(Place.City)}".ToLowerInvariant()
+            });
+        }
+
+        return new(_indexes.Places)
+        {
+            Query = new BoolQuery
+            {
+                Filter = mustConditions
+            },
+            Sort = new List<ISort>
+            {
+                new GeoDistanceSort
+                {
+                    Field = nameof(Place.Coordinate).ToLowerInvariant(),
+                    Order = SortOrder.Ascending,
+                    Points = new[]
+                    {
+                        new GeoCoordinate(point.Latitude, point.Longitude)
+                    }
+                }
+            },
+            From = 0,
+            Size = 1
+        };
+    }
+
+    private SearchRequest<Place> CreateSearchCityRequest(GeoPoint point, Distance distance,
+        ReverseGeoCodingRequest request)
+    {
+        var mustConditions = new List<QueryContainer>
+        {
+            new(new GeoDistanceQuery
+            {
+                Field = nameof(Place.Coordinate).ToLowerInvariant(),
+                Distance = distance,
+                Location = new GeoLocation(point.Latitude, point.Longitude)
+            }),
+            new TermQuery
+            {
+                Field = nameof(Place.CountryCode).ToLowerInvariant(),
+                Value = request.CountryCode
+            },
+            new TermQuery
+            {
+                Field = "osm_value",
+                Value = "city"
+            }
+        };
+        
+        
+        return new(_indexes.Places)
+        {
+            Query = new BoolQuery
+            {
+                Filter = mustConditions
+            },
+            Sort = new List<ISort>
+            {
+                new GeoDistanceSort
+                {
+                    Field = nameof(Place.Coordinate).ToLowerInvariant(),
+                    Order = SortOrder.Ascending,
+                    Points = new[]
+                    {
+                        new GeoCoordinate(point.Latitude, point.Longitude)
+                    }
+                }
+            },
+            From = 0,
+            Size = 1
+        };
+    }
+
+    private async Task<Dictionary<string, Place>> GetPlacesAtDistance(ReverseGeoCodingRequest request, Func<GeoPoint, Distance, ReverseGeoCodingRequest, ISearchRequest> createSearchRequestFunc,
+        int attempts, int distancePerAttempt, DistanceUnit distanceUnit, CancellationToken cancellationToken)
+    {
         var elasticClient = _geoServiceClient.Client;
         var coordinates = request.Coordinates;
-        
         var searchResponseStore = new Dictionary<string, Place>(coordinates.Count);
-        List<int> coordinateToSearchIndexes = Enumerable.Range(0, coordinates.Count).ToList();
-
-        for (var attempt = 1; attempt <= maxSearchDistanceInKm; attempt++)
+        var notFoundIndexes = Enumerable.Range(0, coordinates.Count).ToList();
+        for (var distance = distancePerAttempt; distance <= attempts * distancePerAttempt; distance+= distancePerAttempt)
         {
-            var operations = new Dictionary<string, ISearchRequest>(coordinateToSearchIndexes.Count);
-            var distance = new Distance(attempt, DistanceUnit.Kilometers);
-
-            foreach (var coordinateIndex in coordinateToSearchIndexes)
-                operations.Add(coordinateIndex.ToString(), CreateSearchRequest(coordinates[coordinateIndex], distance));
-
+            var elasticDistance = new Distance(distance, distanceUnit);
+            var operations = notFoundIndexes.ToDictionary(i => i.ToString(), i => createSearchRequestFunc(coordinates[i], elasticDistance, request));
             var multiSearchResponse = await elasticClient.MultiSearchAsync(new MultiSearchRequest
             {
                 Operations = operations
             }, cancellationToken);
-
-            var emptyResponseIndexes = new List<int>();
             
-            foreach (var coordinateIndex in coordinateToSearchIndexes)
-            {
-               var response = multiSearchResponse.GetResponse<Place>(coordinateIndex.ToString());
-               if (response.Documents.Any())
-                   searchResponseStore[coordinateIndex.ToString()] = response.Documents.First();
-               else
-                   emptyResponseIndexes.Add(coordinateIndex);
-            }
-            coordinateToSearchIndexes = emptyResponseIndexes;
+            notFoundIndexes = GetNotFoundIndexesAndAddResponseDataToStore(multiSearchResponse, ref searchResponseStore, notFoundIndexes);
             
-            if (!coordinateToSearchIndexes.Any())
+            if (!notFoundIndexes.Any())
                 break;
         }
 
-        return _reverseGeocodingResponseBuilder.Build(searchResponseStore);
+        return searchResponseStore;
     }
-    
 
-    private SearchRequest<Place> CreateSearchRequest(GeoPoint point, Distance distance)
-        => new (_indexes.Places)
+
+    private List<int> GetNotFoundIndexesAndAddResponseDataToStore(MultiSearchResponse searchResponse, ref Dictionary<string, Place> responseStore, List<int> notFoundIndexes)
     {
-        Query = new GeoDistanceQuery
+        var newNotFoundIndexes = new List<int>();
+        
+        foreach (var searchIndex in notFoundIndexes)
         {
-            Field = nameof(Place.Coordinate).ToLowerInvariant(),
-            Distance = distance,
-            Location = new GeoLocation(point.Latitude, point.Longitude)
-        },
-        Sort = new List<ISort>
-        {
-            new GeoDistanceSort
-            {
-                Field = nameof(Place.Coordinate).ToLowerInvariant(),
-                Order = SortOrder.Ascending,
-                Points = new []
-                {
-                    new GeoCoordinate(point.Latitude, point.Longitude)
-                }
-            }
-        },
-        From = 0,
-        Size = 1
-    };
+            var response = searchResponse.GetResponse<Place>(searchIndex.ToString());
+            if (response.Documents.Any())
+                responseStore[searchIndex.ToString()] = response.Documents.First();
+            else
+                newNotFoundIndexes.Add(searchIndex);
+        }
+        
+        return newNotFoundIndexes;
+    }
 
     
     private readonly IndexNames _indexes;
     private readonly ElasticGeoServiceClient _geoServiceClient;
-    private readonly ReverseGeocodingResponseBuilder _reverseGeocodingResponseBuilder;
+    private readonly ResponseBuilder _responseBuilder;
 }

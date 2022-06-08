@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.LocationNameNormalizer.Extensions;
@@ -30,8 +31,15 @@ public static class ServiceConfigurationExtensions
         vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", builder.Configuration)).GetAwaiter().GetResult();
         
         builder.ConfigureElasticClient(vaultClient);
-        
-        builder.Services.AddMvcCore();
+
+        builder.Services
+            .AddMvcCore()
+            .AddJsonOptions(o =>
+            {
+                o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
         builder.Services
             .AddProblemDetailsErrorHandling()
             .AddHttpContextAccessor()
@@ -59,11 +67,13 @@ public static class ServiceConfigurationExtensions
                 fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             })
             .AddHealthChecks();
-            
+
+
         builder.Services
             .AddSingleton<ElasticGeoServiceClient>()
             .AddTransient<IReverseGeocodingService, ReverseGeocodingService>()
-            .AddTransient<ReverseGeocodingResponseBuilder>();
+            .AddTransient<IPlaceService, PlaceService>()
+            .AddTransient<ResponseBuilder>();
     }
     
     

@@ -107,7 +107,6 @@ public class PhotonUpdater : IPlacesUpdater
     {
         long? searchAfterId = lastOsmId;
         var batchSize = 10000;
-        IReadOnlyCollection<Place> downloadedPlaces;
 
         int downloadedPlacesCount;
         do
@@ -120,7 +119,7 @@ public class PhotonUpdater : IPlacesUpdater
 
             LogDownloadErrors(photonIndexSearchResponse);
             
-            downloadedPlaces = photonIndexSearchResponse.Documents;
+            var downloadedPlaces = photonIndexSearchResponse.Documents;
             
             if (!downloadedPlaces.Any())
                 break;
