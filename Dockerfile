@@ -19,7 +19,7 @@ RUN dotnet restore
 
 FROM build AS Wakayama.dependencies
 ARG Configuration=Release
-RUN dotnet build HappyTravel.Wakayama.Common -c $Configuration --no-restore --no-dependencies && 
+RUN dotnet build HappyTravel.Wakayama.Common -c $Configuration --no-restore --no-dependencies 
     
     
 
