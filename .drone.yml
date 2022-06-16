@@ -131,7 +131,7 @@ steps:
   settings:
     mode: upgrade
     chart: ./Helm/wakayama
-    release: wakayama-dev
+    release: wakayama
     values_files: ["Helm/wakayama/values_dev.yaml"]
     namespace: dev
     skip_tls_verify: true
