@@ -21,7 +21,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HappyTravel.Wakayama.Api v1"));
+app.UseSwaggerUI(o =>
+{
+    o.SwaggerEndpoint("/swagger/v1/swagger.json", "HappyTravel.Wakayama.Api v1");
+    o.RoutePrefix = string.Empty;
+});
 
 app.UseHttpsRedirection();
 app.UseRouting();

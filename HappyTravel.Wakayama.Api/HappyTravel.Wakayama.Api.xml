@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HappyTravel.Wakayama.Api</name>
+    </assembly>
+    <members>
+        <member name="M:HappyTravel.Wakayama.Api.Controllers.PlaceController.GetCities(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of cities
+            </summary>
+            <param name="countryCode">Two-digit country code</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Wakayama.Api.Controllers.PlaceController.GetCountries(System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of countries
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Wakayama.Api.Controllers.ReverseGeocodingController.GetReverseCities(HappyTravel.Wakayama.Api.Models.CityReverseGeoCodingRequest,System.Threading.CancellationToken)">
+            <summary>
+            Returns cities by coordinates
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Wakayama.Api.Controllers.ReverseGeocodingController.GetReverse(HappyTravel.Wakayama.Api.Models.ReverseGeoCodingRequest,System.Threading.CancellationToken)">
+            <summary>
+            Returns geo-information by coordinates
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
