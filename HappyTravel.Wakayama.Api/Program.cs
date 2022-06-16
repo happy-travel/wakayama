@@ -18,9 +18,10 @@ app.UseHttpContextLogging(options => options.IgnoredPaths = new HashSet<string> 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HappyTravel.Wakayama.Api v1"));
 }
+
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HappyTravel.Wakayama.Api v1"));
 
 app.UseHttpsRedirection();
 app.UseRouting();
