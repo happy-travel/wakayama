@@ -44,6 +44,7 @@ public static class ServiceConfigurationExtensions
             .AddProblemDetailsErrorHandling()
             .AddHttpContextAccessor()
             .ConfigureApiVersioning()
+            .AddEndpointsApiExplorer()
             .ConfigureSwagger()
             .ConfigureAuthentication(builder.Configuration)
             .AddAuthorization()
