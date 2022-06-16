@@ -108,6 +108,24 @@ steps:
       - VAULT_TOKEN
       - CONSUL_HTTP_TOKEN
 
+- name: Deploy crone to DEV
+  image: pelotech/drone-helm3:0.14.2
+  settings:
+    mode: upgrade
+    chart: ./Helm/wakayama-updater
+    release: wakayama-updater-dev
+    values_files: ["Helm/wakayama-updater/values_dev.yaml"]
+    namespace: dev
+    skip_tls_verify: true
+    wait: true
+    force: true
+    values: image.tag=${DRONE_COMMIT_SHA:0:7}-DEV
+  environment:
+    KUBE_API_SERVER:
+      from_secret: KUBERNETES_DEV_API
+    KUBE_TOKEN:
+      from_secret: KUBERNETES_DEV_TOKEN      
+
 - name: Deploy to DEV
   image: pelotech/drone-helm3:0.14.2
   settings:
@@ -126,23 +144,7 @@ steps:
     KUBE_TOKEN:
       from_secret: KUBERNETES_DEV_TOKEN
 
-- name: Deploy daily crone to DEV
-  image: pelotech/drone-helm3:0.14.2
-  settings:
-    mode: upgrade
-    chart: ./Helm/wakayama-updater
-    release: wakayama-updater-dev
-    values_files: ["Helm/wakayama-updater/values_dev.yaml"]
-    namespace: dev
-    skip_tls_verify: true
-    wait: true
-    force: true
-    values: image.tag=${DRONE_COMMIT_SHA:0:7}-DEV
-  environment:
-    KUBE_API_SERVER:
-      from_secret: KUBERNETES_DEV_API
-    KUBE_TOKEN:
-      from_secret: KUBERNETES_DEV_TOKEN
+
 
 - name: discord
   pull: always
