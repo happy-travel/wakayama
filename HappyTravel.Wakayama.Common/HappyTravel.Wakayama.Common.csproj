@@ -7,14 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="HappyTravel.ConsulKeyValueClient.ConfigurationProvider" Version="1.6.1" />
-      <PackageReference Include="HappyTravel.LocationNameNormalizer" Version="1.7.4" />
-      <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.0" />
+      <PackageReference Include="HappyTravel.ConsulKeyValueClient.ConfigurationProvider" Version="1.6.3" />
+      <PackageReference Include="HappyTravel.LocationNameNormalizer" Version="1.7.7" />
+      <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.1" />
       <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
       <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-      <PackageReference Include="NEST" Version="7.17.0" />
-      <PackageReference Include="Sentry.AspNetCore" Version="3.14.1" />
+      <PackageReference Include="NEST" Version="7.17.2" />
+      <PackageReference Include="Sentry.AspNetCore" Version="3.18.0" />
     </ItemGroup>
 
 </Project>

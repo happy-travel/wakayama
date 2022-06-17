@@ -5,25 +5,32 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
-
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <NoWarn>1701;1702;1591</NoWarn>
+        <DocumentationFile>..\HappyTravel.Wakayama.Api\HappyTravel.Wakayama.Api.xml</DocumentationFile>
+    </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="CSharpFunctionalExtensions" Version="2.29.1" />
-        <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.1" />
+        <PackageReference Include="CSharpFunctionalExtensions" Version="2.29.3" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.3" />
         <PackageReference Include="HappyTravel.ConsulKeyValueClient.ConfigurationProvider" Version="1.6.3" />
         <PackageReference Include="HappyTravel.ErrorHandling" Version="1.2.3" />
         <PackageReference Include="HappyTravel.Geography" Version="1.6.2" />
         <PackageReference Include="HappyTravel.HttpRequestLogger" Version="1.0.5" />
-        <PackageReference Include="HappyTravel.LocationNameNormalizer" Version="1.7.6" />
+        <PackageReference Include="HappyTravel.LocationNameNormalizer" Version="1.7.7" />
         <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.1" />
-        <PackageReference Include="HappyTravel.Telemetry" Version="0.16.1" />
+        <PackageReference Include="HappyTravel.Telemetry" Version="0.16.5" />
         <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
         <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="6.0.5" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-        <PackageReference Include="Sentry.AspNetCore" Version="3.17.1" />
+        <PackageReference Include="Sentry.AspNetCore" Version="3.18.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     </ItemGroup>
 
