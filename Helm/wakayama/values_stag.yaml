@@ -58,14 +58,14 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
   hosts:
-    - host: gdp-staging.happytravel.com
+    - host: wkm-staging.happytravel.com
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
    - secretName: happytravel-tls
      hosts:
-       - gdp-staging.happytravel.com
+       - wkm-staging.happytravel.com
 
 resources:
   limits:
@@ -105,7 +105,7 @@ metrics:
 env:
   ASPNETCORE_URLS: http://*:80
   ASPNETCORE_ENVIRONMENT: "Staging"
-  HTDC_VAULT_ENDPOINT: "http://vault.staging.svc.k8s.staging:8200/v1/"
+  HTDC_VAULT_ENDPOINT: "http://vault.staging.svc.k8s.dev:8200/v1/"
   HTDC_WAKAYAMA_SENTRY_ENDPOINT: "https://a28e9bf48eef48bca143f0d2eb04aed0@sentry1.happytravel.com/73"
   JAEGER_AGENT_HOST: "localhost"
   JAEGER_AGENT_PORT: "6831"
@@ -113,4 +113,4 @@ env:
   HTDC_GRPC_PORT: "5101"
   HTDC_HEALTH_PORT: "80"
   HTDC_METRICS_PORT: "60001"
-  CONSUL_HTTP_ADDR: "http://consul-consul-server.staging.svc.k8s.staging:8500/"
+  CONSUL_HTTP_ADDR: "http://consul-consul-server.staging.svc.k8s.dev:8500/"
